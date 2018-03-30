@@ -1,0 +1,24 @@
+.sidebar-container{
+    overflow:hidden;
+    position: fixed;
+    bottom: 0;
+    top: 50px;
+    left: 0;
+    width: 230px;
+    background: #212529;
+}
+.sidebar-nav{
+    overflow-y: scroll;
+    max-height: 100%;
+    margin-right: -17px;
+}
+.main{
+    /*position: fixed;*/
+    /*top: 50px;*/
+    /*left: 230px;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
+    /*!*background: #0b7285;*!*/
+    /*overflow: auto;*/
+    margin-left: 230px;
+}

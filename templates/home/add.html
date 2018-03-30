@@ -1,0 +1,50 @@
+{% extends 'home/edit.html' %}
+{% load utils %}
+
+{% block breadcrumb %}
+    <li class="active">新增-{{ model_class|get_model_verbose_name }}</li>
+{% endblock %}
+
+{% block page-header %}
+    <h3 class="page-header">新增-{{ model_class|get_model_verbose_name }}</h3>
+{% endblock %}
+
+{% block field %}
+    {% for field in form_obj %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>
+                {% if field.name in admin_class.filter_horizontal %}
+                    <div class="col-sm-3">
+                        <select multiple="true" class="form-control candidate">
+                            {% for option in field|get_candidate_options %}
+                                <option value="{{ option.pk }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-1 btn-move">
+                        <button type="button" class="btn btn-default btn-block btn-xs btn-move-right">></button>
+                        <button type="button" class="btn btn-default btn-block btn-xs btn-move-left"><</button>
+                    </div>
+                    <div class="col-sm-3">
+                        <select multiple="true" class="form-control selected" name="{{ field.name }}" id='{{ field.id_for_label }}'>
+                            {% for option in field|get_selected_options %}
+                                <option value="{{ option.pk }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% else %}
+                    <div class="col-sm-3">
+                        {{ field|add_class:'form-control' }}
+                    </div>
+                {% endif %}
+        </div>
+        <hr>
+    {% endfor %}
+{% endblock %}
+
+{% block bottom-panel %}
+<div class="well btn-panel clearfix">
+    <a href="{% do_replace request.path '/add' '' %}" class="btn btn-default pull-left">取消</a>
+    <button type="submit" class="btn btn-success pull-right">提交</button>
+</div>
+{% endblock %}

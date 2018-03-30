@@ -1,0 +1,25 @@
+.page-header{
+    margin-top: 20px;
+}
+.table a{
+    text-decoration: none;
+}
+.table .glyphicon-plus{
+    color: green;
+}
+.table .glyphicon-edit{
+    color: darkorange;
+}
+.table .btn-in-td{
+    text-align: center;
+}
+.table-group{
+    margin-bottom: 30px;
+}
+.right-panel .sub-heading{
+    padding: 10px 15px;
+    font-weight: bold;
+}
+.right-panel .nav-sidebar li{
+    padding: 0 15px 5px 30px;
+}

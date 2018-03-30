@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://v3.bootcss.com/favicon.ico">
+
+    <title>PerfectCRM</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/plugins/bootstrap-switch/bootstrap-switch.css" rel="stylesheet">
+    <link href="/static/css/custom.css" rel="stylesheet">
+    {% block base-css %}{% endblock %}
+  </head>
+
+<body class="vsc-initialized">
+
+<!-- Fixed navbar -->
+{% block nav-head %}{% endblock %}
+
+{% block base-container %}{% endblock %}
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="/static/js/jquery-3.2.1.min.js"></script>
+<script src="/static/js/jquery.cookie.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/plugins/bootstrap-switch/bootstrap-switch.js"></script>
+<script>
+    $(function () {
+        /*初始化起泡提示*/
+        $('[data-toggle="tooltip"]').tooltip();
+        /*初始化bootstrapSwitch*/
+        $("input[class='switch']").bootstrapSwitch();
+    })
+</script>
+{% block base-script %}{% endblock %}
+</body>
+</html>

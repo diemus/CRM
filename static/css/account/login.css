@@ -1,0 +1,27 @@
+body{
+    background-color: #eee;
+}
+label{
+    font-weight: normal;
+}
+.panel-heading{
+    font-size: 16px;
+    padding: 8px 15px;
+}
+.checkbox label{
+    font-size: 12px;
+}
+.login-panel{
+    width: 350px;
+    margin: 0 auto;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    margin-left: -175px;
+}
+.alert-dismissable .close, .alert-dismissible .close {
+    top: 0;
+}
+.help-block{
+    color: orangered;
+}

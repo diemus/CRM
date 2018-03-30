@@ -1,0 +1,14 @@
+.btn-panel{
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.btn-move{
+    width: 60px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.block-head{
+    padding: 7px 12px;
+    color: white;
+    background: #79aec8;
+}

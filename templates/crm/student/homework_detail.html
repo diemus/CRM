@@ -1,0 +1,98 @@
+{% extends 'crm/crm-base.html' %}
+{% load crm_utils %}
+{% block css %}
+    <link href="/static/plugins/dropzone/dropzone.css" rel="stylesheet">
+{% endblock %}
+
+{% block container %}
+    <div class="container-fluid">
+        <div class="row">
+            <h3 class="page-header">学员报名</h3>
+            <div class="panel panel-default">
+                <div class="panel-heading">我的课程</div>
+                <div class="panel-body">
+                    <h4>作业标题：{{ study_record_obj.course_record.homework_title }}</h4>
+                    <h4>作业详情：
+                        <pre>{{ study_record_obj.course_record.homework_content }}</pre>
+                    </h4>
+                    <h4>老师评语：
+                        <pre>{{ study_record_obj.memo }}</pre>
+                    </h4>
+                    <h4>本节成绩：{{ study_record_obj.get_score_display }}</h4>
+                    <div class="dropzone" id="mydropzone"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/plugins/dropzone/dropzone.js"></script>
+    <script>
+        Dropzone.autoDiscover = false;
+        $("#mydropzone").dropzone({
+            url: '{% url "homework_upload" study_record_obj.pk %}',
+            paramName: "file",
+            maxFiles: 1,
+            maxFilesize: 10, // MB
+            addRemoveLinks: true,
+            dictDefaultMessage: '请将作业打包为zip格式，并拖拽至此处上传',
+            dictMaxFilesExceeded: '文件数量超过限制',
+            dictRemoveFile: '删除',
+            dictFileTooBig: '文件大小超过限制',
+            acceptedFiles: '.zip',
+            headers: {
+                'X-CSRFToken': $.cookie('csrftoken')
+            }
+        });
+
+        $(document).ready(function () {
+            var myDropzone = Dropzone.forElement("#mydropzone");
+            $.ajax({
+                url: '{% url "homework_upload" study_record_obj.pk %}',
+                type: 'GET',
+                dataType: 'JSON',
+                success: function (rep) {
+                    console.log(myDropzone.files)
+                    if (rep.status == true) {
+                        var mockFileList = [];
+                        var existingFileCount = 1;
+
+                        for (i in rep.data) {
+                            var mockFile = {};
+                            mockFile.name = rep.data[i].name;
+                            mockFile.size = rep.data[i].size;
+                            mockFile.dataURL = rep.data[i].thumbnail_url;
+                            myDropzone.emit("addedfile", mockFile);
+                            myDropzone.emit("complete", mockFile);
+                            existingFileCount+=1;
+                            /*更新已存在文件数量*/
+                            myDropzone.files.push(mockFile)
+                        }
+
+                         // The number of files already uploaded
+                        myDropzone.options.maxFiles = myDropzone.options.maxFiles - existingFileCount;
+
+                    }
+                }
+            })
+        });
+
+
+        {#var mockFile = {name: "123.jpg", size: 12345, dataURL: '/static/image/3.png'};#}
+        {#myDropzone.emit("addedfile", mockFile);#}
+        {#myDropzone.emit("thumbnail", mockFile, "/static/image/3.png");#}
+        {#myDropzone.createThumbnailFromUrl(#}
+        {#    /*V4版本与V5版本参数不一样，此处为V5版本用法*/#}
+        {#    mockFile,#}
+        {#    myDropzone.options.thumbnailWidth,#}
+        {#    myDropzone.options.thumbnailHeight,#}
+        {#    myDropzone.options.thumbnailMethod,#}
+        {#    true,#}
+        {#    function (thumbnail) {#}
+        {#        myDropzone.emit('thumbnail', mockFile, thumbnail);#}
+        {#    });#}
+        {#myDropzone.emit("complete", mockFile);#}
+
+    </script>
+{% endblock %}

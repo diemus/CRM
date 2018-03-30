@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load utils %}
+{% load pagination %}
+{% block css %}
+    <link href='/static/css/home/edit.css' rel="stylesheet">
+{% endblock %}
+
+{% block sub-head %}
+    <ol class="breadcrumb">
+        <li><a href="/king_admin">Home</a></li>
+        <li><a href="/king_admin/{{ app_name }}">{{ app_name }}</a></li>
+        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}">{{ model_class|get_model_verbose_name }}</a></li>
+        {% block breadcrumb %}
+            <li class="active">{{ nid }}</li>
+        {% endblock %}
+    </ol>
+{% endblock %}
+
+{% block container %}
+    <div class="container-fluid main">
+        {% block page-header %}
+            <h3 class="page-header">编辑-{{ model_class|get_model_verbose_name }}</h3>
+        {% endblock %}
+            <form action="{{ request.path }}" method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                      {{ form_obj.errors }}
+                </div>
+                {% block field %}
+{#                    {% for field in form_obj %}#}
+{#                        <div class="form-group">#}
+{#                            <label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>#}
+{#                                {% if field.name in admin_class.readonly_fields %}#}
+{#                                    <div class="col-sm-3">#}
+{#                                        {{ field|add_attrs:'class=form-control,disabled=false' }}#}
+{#                                        <p class="help-block">{{ field.help_text }}</p>#}
+{#                                    </div>#}
+{#                                {% elif field.name in admin_class.filter_horizontal %}#}
+{#                                    <div class="col-sm-3">#}
+{#                                        <select multiple="true" class="form-control candidate">#}
+{#                                            {% for option in field|get_candidate_options %}#}
+{#                                                <option value="{{ option.pk }}">{{ option }}</option>#}
+{#                                            {% endfor %}#}
+{#                                        </select>#}
+{#                                    </div>#}
+{#                                    <div class="col-sm-1 btn-move">#}
+{#                                        <button type="button" class="btn btn-default btn-block btn-xs btn-move-right">></button>#}
+{#                                        <button type="button" class="btn btn-default btn-block btn-xs btn-move-left"><</button>#}
+{#                                    </div>#}
+{#                                    <div class="col-sm-3">#}
+{#                                        <select multiple="true" class="form-control selected" name="{{ field.name }}" id='{{ field.id_for_label }}'>#}
+{#                                            {% for option in field|get_selected_options %}#}
+{#                                                <option value="{{ option.pk }}">{{ option }}</option>#}
+{#                                            {% endfor %}#}
+{#                                        </select>#}
+{#                                    </div>#}
+{#                                {% else %}#}
+{#                                    <div class="col-sm-3">#}
+{#                                        {{ field|add_class:'form-control' }}#}
+{#                                        <p class="help-block">{{ field.help_text }}</p>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
+{##}
+{#                        </div>#}
+{#                        <hr>#}
+{#                    {% endfor %}#}
+
+                    {% for block in admin_class.fieldsets %}
+                        {% if block.0 %}
+                            <p class="block-head">{{ block.0 }}</p>
+                        {% endif %}
+                        <div class="row">
+                            {% for field in block.1.fields %}
+                                {% if field|get_field:form_obj %}
+                                    <div class="form-group">
+                                        <label for="{{ field|get_field:form_obj|get_field_attr:'id_for_label' }}" class="col-sm-2 control-label">{{ field|get_field:form_obj|get_field_attr:'label' }}</label>
+                                        <div class="col-sm-3">
+                                        {% if  field|get_field:form_obj|get_field_type_of_form == 'BooleanField' %}
+                                            {{ field|get_field:form_obj|add_attrs:'class=switch,data-on-color=success,data-off-color=danger' }}
+                                        {% else %}
+                                            {{ field|get_field:form_obj|add_attrs:'class=form-control' }}
+                                        {% endif %}
+                                            <p class="help-block">{{ field|get_field_help_text:form_obj }}</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                {% elif field in admin_class.readonly_fields %}
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">{{ field|get_readonlyfield_label:form_obj }}</label>
+                                        <div class="col-sm-9">
+                                            <p class="form-control-static">{{ field|get_readonlyfield_data:form_obj }}</p>
+                                            {% if field == 'password' %}<p class="help-block"><a href="{% url 'global_password_change' %}?id={{ form_obj.instance.pk }}">修改密码</a></p>{% endif %}
+                                            <p class="help-block">{{ field|get_field_help_text:form_obj }}</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+
+                {% block bottom-panel %}
+                    {% if admin_class.readonly_table %}
+                        <div class="well btn-panel clearfix">
+                            <a href="{% do_replace request.path '/[^/]+?/edit' ''%}?id={{ nid }}" class="btn btn-default pull-left">返回</a>
+                        </div>
+                    {% else %}
+                        <div class="well btn-panel clearfix">
+                            <a href="{% do_replace request.path '/[^/]+?/edit' '/delete'%}?id={{ nid }}" class="btn btn-danger pull-left">删除</a>
+                            <button type="submit" class="btn btn-success pull-right">提交</button>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            </form>
+        </div>
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+    function getQueryDict() {
+        var queryString=window.location.search.replace('?','');
+        var re=/(\S+)=(\S*)/;
+        var queryDict={};
+        var queryList=queryString.split('&');
+        for(i in queryList){
+            result=queryList[i].match(re);
+            if(result){
+                queryDict[result[1]]=result[2];
+            }
+        }
+        return queryDict
+    }
+
+    function getQuerySting(queryDict) {
+        var queryList=[];
+        for(k in queryDict){
+            queryList.push(k+"="+queryDict[k]);
+        }
+        var querySting="?"+queryList.join('&');
+        return querySting
+    }
+    /*multiselect双击左右移动*/
+    $('select.candidate').on('dblclick','option',function () {
+        var $target=$(this).parents('.form-group').find('select.selected');
+        $(this).appendTo($target);
+    });
+    $('select.selected').on('dblclick','option',function () {
+        var $target=$(this).parents('.form-group').find('select.candidate');
+        $(this).appendTo($target);
+    });
+    /*左右移动按钮*/
+    $('.btn-move .btn-move-right').click(function () {
+        var $target=$(this).parents('.form-group').find('select.selected');
+        $(this).parents('.form-group').find('select.candidate option:selected').appendTo($target);
+    });
+    $('.btn-move .btn-move-left').click(function () {
+        var $target=$(this).parents('.form-group').find('select.candidate');
+        $(this).parents('.form-group').find('select.selected option:selected').appendTo($target);
+    });
+    /*提交*/
+{#    $('.main form').submit(function () {#}
+{#        /*select左右移动部分，右侧selected框提交时自动全选*/#}
+{#        $('select.selected option').each(function () {#}
+{#            $(this).prop('selected',true);#}
+{#        })#}
+{##}
+{#        /*readonly部分，提交前将disabled改为false*/#}
+{#        $('form :disabled').prop('disabled',false);#}
+{#    });#}
+</script>
+{% endblock %}

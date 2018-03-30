@@ -1,0 +1,54 @@
+.glyphicon-ok{
+    color: green;
+}
+.glyphicon-remove{
+    color: red;
+}
+.panel-filter .form-group{
+    margin: 10px 20px 20px 20px ;
+}
+.panel-filter label{
+    display: block;
+}
+.panel-filter .form-search input{
+    display: inline-block;
+    width: 76%;
+}
+.panel-filter .btn-filter-clear{
+    font-size: 12px;
+    float: right;
+    line-height: 20px;
+}
+thead td{
+    cursor: pointer;
+}
+thead td:hover{
+    background-color: #eee;
+}
+thead td[order='desc'],
+thead td[order='asc']{
+    background-color: #eee;
+}
+
+thead td span{
+    float: right;
+    top:0!important;
+    line-height: 20px!important;
+    font-size: 12px;
+    color: grey;
+}
+thead td span:hover{
+    color: cornflowerblue;
+}
+td.td-middle{
+    text-align:center;
+}
+table{
+    text-align:center;
+}
+.btn-add{
+    margin-top: -5px;
+}
+select.action{
+    min-width: 200px!important;
+}

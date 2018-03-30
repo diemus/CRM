@@ -1,0 +1,30 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PerfectCRM</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/">Home</a></li>
+        <li><a href="/">About</a></li>
+        <li><a href="/">Contact</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+              <a class="dropdown-toggle user-profile" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  <img src="/static/image/1.jpg" class="img-thumbnail">
+                  <span id="username">{{ request.user.name }}</span>
+                  <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="{% url 'edit' 'account' 'user' request.user.pk %}">个人信息</a></li>
+                <li><a href="{% url 'password_change' %}">修改密码</a></li>
+                <li><a href="#">设置</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'logout' %}">注销</a></li>
+              </ul>
+          </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>

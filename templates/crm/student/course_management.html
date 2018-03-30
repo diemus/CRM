@@ -1,0 +1,56 @@
+{% extends 'crm/crm-base.html' %}
+{% load crm_utils %}
+{% block css %}
+    {#    <link href="/static/css/crm/enroll.css" rel="stylesheet">#}
+    {#    <link href="/static/plugins/zoom/zoom.css" rel="stylesheet">#}
+    <style>
+        thead td {
+            background: none;
+            font-weight: bolder;
+        }
+    </style>
+{% endblock %}
+
+{% block container %}
+    <div class="container-fluid">
+        <div class="row">
+            <h3 class="page-header">学员报名</h3>
+            <div class="panel panel-default">
+                <div class="panel-heading">我的课程</div>
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <td>课程名称</td>
+                            <td>班级</td>
+                            <td>开课日期</td>
+                            <td>结业日期</td>
+                            <td>课程进度</td>
+                            <td>我的成绩</td>
+                            <td>作业管理</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in customer_obj|get_enrolled_classes %}
+                            <tr>
+                                <td>{{ obj.enrolled_class.course.name }}</td>
+                                <td>{{ obj.enrolled_class }}</td>
+                                <td>{{ obj.enrolled_class.start_date }}</td>
+                                <td>{{ obj.enrolled_class.end_date }}</td>
+                                <td>已上{{ obj.enrolled_class.courserecord_set.all.count }}节</td>
+                                <td>{{ obj|get_student_sum_score:customer_obj }}</td>
+                                <td><a href="{% url 'homework_management' obj.pk %}">作业管理</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    </script>
+{% endblock %}

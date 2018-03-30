@@ -1,0 +1,146 @@
+{% extends 'static-frame.html' %}
+{% load utils %}
+{% load crm_utils %}
+
+{% block base-css %}
+    <link href="/static/plugins/dropzone/dropzone.css" rel="stylesheet">
+    {#    <link href="/static/plugins/dropzone/basic.css" rel="stylesheet">#}
+    <style>
+        .contract {
+            height: 500px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+{% endblock %}
+
+{% block nav-head %}
+{% endblock %}
+
+{% block base-container %}
+    <div class="col-lg-8 col-lg-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">报名信息</div>
+            <div class="panel-body">
+                {% if enrollment_obj.contract_agreed %}
+                    <div class="col-lg-12">您的报名表已提交成功，合同将很快被审核，即将开启激动的自我提升之旅！</div>
+                {% else %}
+                    <form class="form-horizontal" action="{{ request.path }}" method="post">
+                        {% csrf_token %}
+                        <div class="error error-all">{{ customer_form|get_error_for_all }}</div>
+                        {% for field in customer_form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}"
+                                       class="col-sm-3 control-label">{{ field.label }}</label>
+                                <div class="col-sm-6">
+                                    {{ field|add_attrs:'class=form-control' }}
+                                    <p class="help-block error">{{ field.errors.0 }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <hr>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">所报班级</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static">{{ enrollment_obj.enrolled_class }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">课程费用</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static">{{ enrollment_obj.enrolled_class.course.price }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">报名课程</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static">{{ enrollment_obj.enrolled_class.start_date }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-12">
+                                <pre class="contract">{{ enrollment_obj|render_contract_template }}</pre>
+                            </div>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="contract_agreed">我已阅读并同意以上所有条款
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary center-block" id="submit" disabled>提交</button>
+                    </form>
+                    <hr>
+                    <form action="{% url 'stu_registration_upload' enrollment_obj.pk 'front' %}"
+                          class="dropzone needsclick dz-clickable" id="mydropzone1">
+                        {% csrf_token %}
+                        <div class="dz-message needsclick">
+                            身份证正面<br>
+                            <span class="text-muted">要求内容清晰，无遮挡</span>
+                        </div>
+
+                    </form>
+                    <hr>
+                    <form action="{% url 'stu_registration_upload' enrollment_obj.pk 'back' %}"
+                          class="dropzone needsclick dz-clickable" id="mydropzone2">
+                        {% csrf_token %}
+                        <div class="dz-message needsclick">
+                            身份证反面<br>
+                            <span class="text-muted">要求内容清晰，无遮挡</span>
+                        </div>
+
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block base-script %}
+    <script src="/static/plugins/dropzone/dropzone.js"></script>
+    <script>
+
+        Dropzone.autoDiscover = false;
+        $("#mydropzone1").dropzone({
+            paramName: "file",
+            maxFiles: 1,
+            maxFilesize: 2, // MB
+            addRemoveLinks: true,
+            dictMaxFilesExceeded: '文件数量超过限制',
+            dictRemoveFile: '删除',
+            dictFileTooBig: '文件大小超过限制',
+            acceptedFiles: 'image/*',
+            init: function () {
+                this.on("addedfile", function (file) {
+                    {#console.log(file)#}
+                    var myDropzone = Dropzone.forElement("#mydropzone1");
+                    console.log(myDropzone.files)
+                });
+            }
+        });
+        $("#mydropzone2").dropzone({
+            paramName: "file",
+            maxFiles: 1,
+            maxFilesize: 2, // MB
+            addRemoveLinks: true,
+            dictMaxFilesExceeded: '文件数量超过限制',
+            dictRemoveFile: '删除',
+            dictFileTooBig: '文件大小超过限制',
+            acceptedFiles: 'image/*',
+            init: function () {
+                this.on("addedfile", function (file) {
+                    {#console.log(file)#}
+                });
+            }
+        });
+
+        $('input[name=contract_agreed]').change(function () {
+            var status = $(this).prop('checked');
+            if (status) {
+                $('#submit').prop('disabled', false);
+            } else {
+                $('#submit').prop('disabled', true);
+            }
+        })
+    </script>
+{% endblock %}

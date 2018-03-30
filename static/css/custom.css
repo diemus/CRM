@@ -1,0 +1,41 @@
+body {
+    padding-top: 50px;
+}
+.alert{
+    padding: 10px 45px 10px 35px;
+    margin:5px 10px;
+}
+.alert-dismissable .close, .alert-dismissible .close{
+    top: 0;
+    right: -25px;
+}
+.glyphicon-ok{
+    color: green;
+}
+.glyphicon-remove{
+    color: red;
+}
+.container-fluid{
+    padding-right: 45px;
+    padding-left: 45px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.navbar-right .dropdown .img-thumbnail{
+    width: 40px;
+    height: 40px;
+}
+.navbar-right .user-profile{
+    padding: 5px;
+}
+.breadcrumb{
+    padding: 8px 45px;
+    margin-bottom: 0;
+}
+.page-header{
+    margin-top: 20px;
+}
+thead td{
+    background: #f6f6f6;
+    font-weight: bolder;
+}

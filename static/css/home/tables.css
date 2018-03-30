@@ -1,0 +1,15 @@
+.page-header{
+    margin-top: 20px;
+}
+.table a{
+    text-decoration: none;
+}
+.table .glyphicon-plus{
+    color: green;
+}
+.table .glyphicon-edit{
+    color: darkorange;
+}
+.table .btn-in-td{
+    text-align: center;
+}

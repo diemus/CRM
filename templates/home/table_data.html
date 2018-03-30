@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load utils %}
+{% load pagination %}
+{% block css %}
+    <link href='/static/css/home/table_data.css' rel="stylesheet">
+{% endblock %}
+
+{% block sub-head %}
+    <ol class="breadcrumb">
+        <li><a href="/king_admin">Home</a></li>
+        <li><a href="/king_admin/{{ app_name }}">{{ app_name }}</a></li>
+        <li class="active">{{ model_class|get_model_verbose_name }}</li>
+    </ol>
+{% endblock %}
+
+
+{% block container %}
+    <div class="container-fluid">
+        <h3 class="page-header">
+            {{ model_class|get_model_verbose_name }}
+            <a class="btn btn-success pull-right btn-add" href="{{ request.path }}/add">新增</a>
+        </h3>
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="navbar navbar-default navbar-action">
+                    <form class="navbar-form navbar-left" action="{{ request.path }}/action" method="get">
+                        <span>执行动作：</span>
+                        <div class="form-group">
+                            <select class="form-control action" name="name">
+                                <option value="">---------------</option>
+                                {% for name in admin_class.actions %}
+                                    <option value="{{ name }}">{{ name|get_action_verbose_name:admin_class }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <input type="hidden" class="id-list" name="id">
+                        <button type="submit" class="btn btn-default btn-action">开始</button>
+                    </form>
+                </div>
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="select-all">
+                            </td>
+                            {% for field in admin_class.list_display %}
+                                <td field="{{ field }}" order="{% get_order_status request field admin_class %}">
+                                    {{ admin_class|get_field_verbose_name:field|upper }}
+                                    <span class="glyphicon {{ request|get_order_icon:field }}"></span>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in current_page.object_list %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="select-row">
+                                </td>
+                                {% for field in admin_class.list_display %}
+                                    {% if field == admin_class.list_display.0 %}
+                                        <td class="pk"><a href="{{ request.path }}/{% get_data_by_field i field admin_class %}/edit">{% get_data_by_field i field admin_class %}</a></td>
+                                    {% else %}
+                                        <td>{% get_data_by_field i field admin_class %}</td>
+                                    {% endif %}
+
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <ul class="pagination">
+                    {% if current_page.number != 1 %}
+                        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}?p=1">&laquo;</a></li>
+                        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}?p={{ current_page.previous_page_number }}"><</a></li>
+                    {% else %}
+                        <li class="disabled"><a href="#">&laquo;</a></li>
+                        <li class="disabled"><a href="#"><</a></li>
+                    {% endif %}
+
+                    {% for i in current_page|get_display_range:5 %}
+                        {% if current_page.number == i %}
+                            <li class="active"><a href="/king_admin/{{ app_name }}/{{ table_name }}?p={{ i }}">{{ i }}</a></li>
+                        {% else %}
+                            <li><a href="/king_admin/{{ app_name }}/{{ table_name }}?p={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page.number != current_page.paginator.num_pages %}
+                        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}?p={{ current_page.next_page_number }}">></a></li>
+                        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}?p={{ current_page.paginator.num_pages }}">&raquo;</a></li>
+                    {% else %}
+                        <li class="disabled"><a href="#">></a></li>
+                        <li class="disabled"><a href="#">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-default panel-filter">
+                    <div class="panel-heading">
+                        筛选器
+                        <a class="btn-filter-clear" href="javascript:;">重置条件</a>
+                    </div>
+                    <form role="form">
+                        <div class="form-group form-search">
+                            <label>
+                                字段搜索
+                                (<a data-toggle="tooltip" data-placement="top" title="{% get_tooltip_title_for_search admin_class.search_fields %}">?</a>)
+                            </label>
+                            <input type="text" name="_search" class="form-control" placeholder="搜索" value="{{ request|get_search_value:'_search'}}">
+                            <button type="button" class="btn btn-default btn-search">搜索</button>
+                        </div>
+
+                        {% if admin_class.list_filters %}<hr>{% endif %}
+                        {% for filter_field in admin_class.list_filters %}
+                            <div class="form-group">
+                                <label for="{{ filter_field }}">By {{ admin_class|get_field_verbose_name:filter_field }}</label>
+                                <select id="{{ filter_field }}" class="form-control" name="{{ filter_field }}">
+                                    <option value="">All</option>
+                                    {% for option in model_class|get_options:filter_field %}
+                                        <option value="{{ option.0 }}" {% is_option_selected option.0 filter_field request %}>{{ option.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+    function getQueryDict() {
+        var queryString=window.location.search.replace('?','');
+        var re=/(\S+)=(\S*)/;
+        var queryDict={};
+        var queryList=queryString.split('&');
+        for(i in queryList){
+            result=queryList[i].match(re);
+            if(result){
+                queryDict[result[1]]=result[2];
+            }
+        }
+        return queryDict
+    }
+
+    function getQuerySting(queryDict) {
+        var queryList=[];
+        for(k in queryDict){
+            queryList.push(k+"="+queryDict[k]);
+        }
+        var querySting="?"+queryList.join('&');
+        return querySting
+    }
+    /*字段搜索*/
+    $('.panel-filter .btn-search').click(function () {
+        var queryDict=getQueryDict();
+        var name=$(this).siblings('input').attr('name');
+        var value=$(this).siblings('input').val();
+        if(value.length>0){
+            queryDict[name]=value;
+            var queryString=getQuerySting(queryDict);
+            var pathname = window.location.pathname;
+            window.location.href=pathname+queryString;
+        }
+    })
+
+    /*过滤器触发事件*/
+    $('.panel-filter select').on('change',function () {
+        var queryDict=getQueryDict();
+        $('.panel-filter form select').each(function () {
+            var name=$(this).attr('name');
+            var value=$(this).val();
+            if(value.length>0){
+                queryDict[name]=value;
+            }
+            /*返回第一页*/
+            queryDict['p']=1
+        })
+        var queryString=getQuerySting(queryDict);
+        var pathname = window.location.pathname;
+        window.location.href=pathname+queryString;
+    })
+    /*过滤条件清空*/
+    $('.panel-filter .btn-filter-clear').click(function () {
+        var queryDict=getQueryDict();
+        $('.panel-filter form select,.panel-filter form input').each(function () {
+            var name=$(this).attr('name');
+            if(name in queryDict){
+                delete queryDict[name];
+            }
+            /*返回第一页*/
+            /*清空条件时不返回*/
+{#            queryDict['p']=1#}
+        })
+        var queryString=getQuerySting(queryDict);
+        var pathname = window.location.pathname;
+        window.location.href=pathname+queryString;
+    })
+    /*排序事件*/
+    $('thead td[field]:not([order=disabled])').click(function () {
+        /*order=disabled为非数据库字段，不参与排序*/
+        var order=$(this).attr('order');
+        var newOrder='';
+        var field=$(this).attr('field');
+        var pathname = window.location.pathname;
+        if(order=='none'){
+            newOrder=field;
+        }else if(order=='asc'){
+            newOrder='-'+field;
+        }else if(order=='desc'){
+            /*第三次点击取消排序*/
+            newOrder='';
+        }
+
+        /*重新设置querySting*/
+        var queryDict=getQueryDict();
+        queryDict['order']=newOrder;
+        var queryString=getQuerySting(queryDict);
+        window.location.href=pathname+queryString;
+    })
+
+    /*CheckboxToggle*/
+    $('thead input.select-all').click(function () {
+        var status=$(this).prop('checked');
+        if(status){
+            $("tbody input.select-row").each(function () {
+                $(this).prop('checked',true);
+            })
+        }else{
+            $("tbody input.select-row").each(function () {
+                $(this).prop('checked',false);
+            })
+        }
+    })
+    /*row CheckboxChange*/
+    $('tbody input.select-row').click(function () {
+        var status=$(this).prop('checked');
+        if(!status) {
+            $("thead input.select-all").prop('checked', false);
+        }
+    })
+
+    $('.navbar-action .btn-action').click(function () {
+        var idList=[];
+        $("tbody input.select-row:checked").each(function () {
+            idList.push($(this).parents('tr').find('.pk a').text());
+        });
+        $('form input.id-list').val(idList.toString())
+    })
+</script>
+{% endblock %}

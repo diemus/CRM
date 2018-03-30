@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load utils %}
+{% load pagination %}
+{% block css %}
+    <link href='/static/css/home/delete.css' rel="stylesheet">
+{% endblock %}
+
+{% block sub-head %}
+    <ol class="breadcrumb">
+        <li><a href="/king_admin">Home</a></li>
+        <li><a href="/king_admin/{{ app_name }}">{{ app_name }}</a></li>
+        <li><a href="/king_admin/{{ app_name }}/{{ table_name }}">{{ model_class|get_model_verbose_name }}</a></li>
+        {% block breadcrumb %}
+            <li class="active">{{ nid }}</li>
+        {% endblock %}
+    </ol>
+{% endblock %}
+
+{% block container %}
+
+    <div class="container-fluid main">
+        <h3 class="page-header">删除确认</h3>
+        <p>你确定要删除“{{ model_class|get_model_verbose_name }}”中的这些数据吗？以下对象及其关联对象将全部被删除：</p>
+        <h4 class="sub-heading summary">摘要</h4>
+        <ul>
+            {% for i in summary_list %}
+                <li>{{ i }}</li>
+            {% endfor %}
+        </ul>
+        <h4 class="sub-heading objects">涉及对象</h4>
+        {{ related_objects_list|show_nested_objects }}
+        <form action="{{ request.path }}" method="post">
+            {% csrf_token %}
+            {% for i in queryset %}
+                <input type="hidden" name="id" value="{{ i.pk }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-danger">确认删除</button>
+            <a href="{% do_replace request.path '/delete' '' %}" class="btn btn-default">不，我要取消</a>
+        </form>
+    </div>
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+    function getQueryDict() {
+        var queryString=window.location.search.replace('?','');
+        var re=/(\S+)=(\S*)/;
+        var queryDict={};
+        var queryList=queryString.split('&');
+        for(i in queryList){
+            result=queryList[i].match(re);
+            if(result){
+                queryDict[result[1]]=result[2];
+            }
+        }
+        return queryDict
+    }
+
+    function getQuerySting(queryDict) {
+        var queryList=[];
+        for(k in queryDict){
+            queryList.push(k+"="+queryDict[k]);
+        }
+        var querySting="?"+queryList.join('&');
+        return querySting
+    }
+    /*multiselect双击左右移动时间绑定*/
+    $('select.candidate').on('dblclick','option',function () {
+        var $target=$(this).parents('.form-group').find('select.selected');
+        $(this).appendTo($target);
+    });
+    $('select.selected').on('dblclick','option',function () {
+        var $target=$(this).parents('.form-group').find('select.candidate');
+        $(this).appendTo($target);
+    });
+    /*提交时自动全选*/
+    $('.main form').submit(function () {
+        $('select.selected option').each(function () {
+            $(this).prop('selected',true);
+        })
+    });
+</script>
+{% endblock %}

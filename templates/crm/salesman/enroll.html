@@ -1,0 +1,240 @@
+{% extends 'crm/crm-base.html' %}
+{% load utils %}
+{% block css %}
+    <link href="/static/css/crm/enroll.css" rel="stylesheet">
+    <link href="/static/plugins/zoom/zoom.css" rel="stylesheet">
+    <style>
+        #tab3 img {
+            height: 200px;
+        }
+    </style>
+{% endblock %}
+
+{% block container %}
+    <div class="container-fluid">
+        <div class="row">
+            <h3 class="page-header">学员报名</h3>
+            <div id="rootwizard" class="tabbable tabs-left">
+                <div id="bar" class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;"></div>
+                </div>
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <ul>
+                            <li><a href="#tab1" data-toggle="tab">课程选择</a></li>
+                            <li><a href="#tab2" data-toggle="tab">报名链接</a></li>
+                            <li><a href="#tab3" data-toggle="tab">信息审核</a></li>
+                            <li><a href="#tab4" data-toggle="tab">缴费</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane" id="tab1">
+                        <form class="form-horizontal step1">
+                            {% csrf_token %}
+                            <div class="error error-all" target="__all__"></div>
+                            {% for field in form1 %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}"
+                                           class="col-sm-2 control-label">{{ field.label }}</label>
+                                    <div class="col-sm-3">
+                                        {{ field|add_attrs:'class=form-control' }}
+                                        <p class="help-block error" target="{{ field.name }}"></p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="tab2">
+                        <div class="container-fluid">
+                            <span class="content"></span>
+                            <span class="status"></span>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab3">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <form class="form-horizontal step3">
+                                    {% for field in form3 %}
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}"
+                                                   class="col-sm-4 control-label">{{ field.label }}</label>
+                                            <div class="col-sm-8">
+                                                {{ field|add_attrs:'class=form-control,disabled=true' }}
+                                                <p class="help-block error" target="{{ field.name }}"></p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">审核意见</label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" class='switch' name="review" id='review'
+                                                   data-on-color='success'
+                                                   data-off-color='danger' data-on-text="通过" data-off-text="驳回" checked>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-lg-6">
+                                <a class="thumbnail col-lg-12"><img
+                                        src="{% url 'show_stu_id_image' enrollment_obj.pk 'front' %}"
+                                        data-action="zoom"></a>
+                                <a class="thumbnail col-lg-12"><img
+                                        src="{% url 'show_stu_id_image' enrollment_obj.pk 'back' %}" data-action="zoom"></a>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tab4">
+                        {% if enrollment_obj.payment_set.all.count == 0 %}
+                            <form class="form-horizontal step3">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">学生姓名</label>
+                                    <div class="col-sm-4">
+                                        <p class='form-control-static'>{{ enrollment_obj.customer.name }}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">所报课程</label>
+                                    <div class="col-sm-4">
+                                        <p class='form-control-static'>{{ enrollment_obj.enrolled_class.course.name }}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">缴费金额</label>
+                                    <div class="col-sm-4">
+                                        {{ 'amount'|get_field:form4|add_attrs:'class=form-control' }}
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-success col-lg-offset-2" id="tab4-submit">提交
+                                </button>
+                            </form>
+                        {% else %}
+                            <p>已成功缴费</p>
+                        {% endif %}
+                    </div>
+                    <ul class="pager wizard">
+                        <li class="previous first" style="display:none;"><a href="#">First</a></li>
+                        <li class="previous"><a href="#">上一步</a></li>
+                        <li class="next last" style="display:none;"><a href="#">Last</a></li>
+                        <li class="next"><a href="#">下一步</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/plugins/bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
+    <script src="/static/plugins/zoom/zoom.js"></script>
+    <script>
+        $(document).ready(function () {
+            var csrftoken = $.cookie('csrftoken');
+            $.ajaxSetup({
+                headers: {"X-CSRFToken": csrftoken},
+            });
+
+            $('#rootwizard').bootstrapWizard({
+                'tabClass': 'nav nav-tabs',
+                onTabShow: function (tab, navigation, index) {
+                    var $total = navigation.find('li').length;
+                    var $current = index + 1;
+                    var $percent = ($current / $total) * 100;
+                    $('#rootwizard .progress-bar').css({width: $percent + '%'});
+
+                },
+                onTabClick: function (tab, navigation, index) {
+                    return false;
+                },
+                onNext: function (tab, navigation, index) {
+                    var status = true;
+                    if (index == 1) {
+                        $('.form-group').removeClass('has-error');
+                        $('.error').text('');
+                        $.ajax({
+                            url: location.href,
+                            type: 'POST',
+                            data: $('form.step1').serialize(),
+                            async: false,
+                            dataType: 'JSON',
+                            success: function (data) {
+                                if (!data.status) {
+                                    for (k in data.errors) {
+                                        $('form.step1 .error[target=' + k + ']').text(data.errors[k][0].message);
+                                        $('form.step1 .error[target=' + k + ']').parents('.form-group').addClass('has-error');
+                                    }
+                                    status = false
+                                } else {
+                                    $('.form-group').removeClass('has-error');
+                                    $('.error').text('');
+                                    $ele = $('<div>请将以下报名链接发送给学生进行填写：<a href="' + data.link + '">' + data.link + '</a></div>');
+                                    $('#tab2 .container-fluid .content').html($ele);
+                                    $('#tab2 .container-fluid').attr('target_id', data.enrollment_id);
+                                }
+                            }
+                        });
+                        return status
+                    }
+                    else if (index == 2) {
+                        $.ajax({
+                            url: '{% url 'enrollment_check' %}',
+                            type: 'POST',
+                            data: {id: $('#tab2 .container-fluid').attr('target_id')},
+                            async: false,
+                            dataType: 'JSON',
+                            success: function (data) {
+                                if (!data.status) {
+                                    alert('学员尚未完成注册！');
+                                    status = false
+                                }
+                            }
+                        });
+                        return status
+                    }
+                    else if (index == 3) {
+                        var review = $('#review').prop('checked');
+                        $.ajax({
+                            url: '{% url 'stu_registration_review' enrollment_obj.pk  %}',
+                            type: 'POST',
+                            data: {review: review},
+                            async: false,
+                            dataType: 'JSON',
+                            success: function (data) {
+
+                            }
+                        });
+                        if (review) {
+                            alert('审核已通过！');
+                        } else {
+                            alert('已驳回，请通知学生重新提交信息资料！');
+                            status = false;
+                            return status;
+                        }
+
+                    }
+
+                }
+            });
+
+        });
+
+        $('#tab4-submit').click(function () {
+            $.ajax({
+                url: '{% url 'stu_registration_payment' enrollment_obj.pk %}',
+                type: "POST",
+                data: {'amount': $('#id_amount').val()},
+                dataType: "JSON",
+                success: function (data) {
+                    if (data.status) {
+                        alert('缴费成功');
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock %}

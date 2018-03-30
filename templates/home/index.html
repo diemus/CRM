@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load utils %}
+
+{% block css %}
+<link href='/static/css/home/index.css' rel="stylesheet">
+{% endblock %}
+
+{% block container %}
+    <div class="container-fluid">
+        <h3 class="page-header">数据库管理系统</h3>
+        <div class="row">
+            <div class="col-md-6">
+                {% for app_name,app_tables in table_list.items %}
+                    <div class="panel panel-default table-group">
+                        <div class="panel-heading">
+                            <a href="/king_admin/{{ app_name }}">{{ app_name|upper }}</a>
+                        </div>
+                        <table class="table">
+                            <tbody>
+                                {% for table_name,class_dict in app_tables.items %}
+                                    <tr class="row">
+                                        <td class="col-lg-8">
+                                            <a href="/king_admin/{{ app_name }}/{{ table_name }}">{{ class_dict.model|get_model_verbose_name }}</a>
+                                        </td>
+                                        <td class="col-lg-2 btn-in-td">
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                            新增
+                                        </a>
+                                    </td>
+                                        <td class="col-lg-2 btn-in-td">
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-edit"></span>
+                                            编辑
+                                        </a>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-default right-panel">
+                    <div class="panel-heading">最近活动</div>
+                    <div class="sub-heading">我的活动</div>
+                    <ul class="nav nav-sidebar">
+                        <li>sdafds</li>
+                        <li>sdafds</li>
+                        <li>sdafds</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
