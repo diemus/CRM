@@ -2,7 +2,7 @@ from home import models
 from django.shortcuts import redirect,render,HttpResponse
 from urllib.parse import urlencode
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse,resolve
 from django.utils.html import mark_safe
 enabled_admins = {}
 
@@ -26,13 +26,19 @@ class BaseAdmin:
     delete_selected_objs.short_description = '批量删除所有选中项'
 
 class CustomerAdmin(BaseAdmin):
-    list_display = ['qq','name','source','consultant','consult_course','ctime','status','id']
+    list_display = ['qq','name','source','consultant','consult_course','ctime','status','id','enroll']
     list_filters = ['name','source','consultant','consult_course','status','ctime']
     search_fields = ['qq', 'name', "consultant__name"]
     filter_horizontal = ['tags']
     ordering = ['id']
     readonly_fields = ['qq','consultant','tags']
-    readonly_table = True
+    readonly_table = False
+
+    def enroll(self):
+        url=reverse('enroll_for_salesman')+'?customer_id=%s'
+        ele='<a href="%s">报名</a>'%url
+        return ele
+    enroll.verbose_name='报名链接'
 
 class CourseRecordAdmin(BaseAdmin):
     list_display = ['from_class', 'day_num', 'teacher', 'has_homework', 'homework_title']
@@ -68,7 +74,7 @@ class CustomerFollowUpAdmin(BaseAdmin):
 
 
 class UserAdmin(BaseAdmin):
-    list_display = ['email','name','groups','is_staff','is_active','ctime','enroll']
+    list_display = ['email','name','groups','is_staff','is_active','ctime']
     list_filters = ['groups','is_staff','is_active','ctime']
     search_fields = ['email','name']
     filter_horizontal = ['roles']
@@ -82,10 +88,7 @@ class UserAdmin(BaseAdmin):
     )
 
 
-    def enroll(self):
-        ele='<a href="/enroll/%s">报名</a>'
-        return ele
-    enroll.verbose_name='报名链接'
+
 
 
 def register(model_class,admin_class=None):

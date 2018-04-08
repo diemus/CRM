@@ -14,7 +14,7 @@ def create_model_form(model_class,admin_class=None):
         model=model_class
         fields="__all__"
         exclude=['last_login']
-        if admin_class.readonly_fields:
+        if admin_class and admin_class.readonly_fields:
             exclude.extend(admin_class.readonly_fields)
     attrs['Meta']=Meta
 
